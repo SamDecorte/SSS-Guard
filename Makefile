@@ -17,7 +17,7 @@ BUILD   := build
 LIB     := $(BUILD)/guard.o
 
 # Benign tests: same output with and without Guard.
-BENIGN  := callbacks
+BENIGN  := callbacks api_demo
 # Attack tests: hijack when plain, blocked when guarded.
 ATTACK  := fptr_overwrite
 #ATTACK  := fptr_overwrite ret_overwrite

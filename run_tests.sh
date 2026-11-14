@@ -13,6 +13,12 @@ for t in callbacks; do
   else no "$t (benign)" "exited $?"; fi
 done
 
+for t in api_demo; do
+  echo "-- Running test $t --"
+  if out=$("$B/$t" 2>/dev/null); then ok "$t (benign)"
+  else no "$t (benign)" "exited $?"; fi
+done
+
 # --- attacks ---
 #for t in fptr_overwrite ret_overwrite; do
 for t in fptr_overwrite; do
