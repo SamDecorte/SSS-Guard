@@ -30,6 +30,10 @@ int guard_is_valid(const void *addr);
 /* Violations                                                         */
 /* ------------------------------------------------------------------ */
 
+/* Abort the program with the given reason. Supposed to be used for 
+ * internal errors, as opposed to violations. */
+_Noreturn void guard_abort(const char *reason);
+
 /* Report a CFI violation on stderr and abort(). Never returns. */
 _Noreturn void guard_violation(const char *what, const void *addr,
                                const char *file, int line);
