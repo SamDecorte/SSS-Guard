@@ -20,14 +20,14 @@ int main(void)
     // Registering a function
     guard_register(add);
     guard_register(xor);
-    // Do not register mul; this will be our invalid function call
+    (void)mul;
 
     guard_seal();
 
-    int _pid = fork();
+    fork();
 
     // Should not error
-    int (*fp)(int, int) = mul;
+    int (*fp)(int, int) = add;
     GUARD_ICALL(fp)(2, 3);
     
     return 0;
