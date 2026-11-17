@@ -62,9 +62,9 @@ void guard_ss_check_pop(void *ret, const char *file, int line);
 
 #else
 
-/* TODO: check fp, evaluate it exactly once, yield fp.
+/* Check fp, evaluate it exactly once, yield fp.
  * Usage: fp(x)  ->  GUARD_ICALL(fp)(x)                                */
-#define GUARD_ICALL(fp)       (fp)
+#define GUARD_ICALL(fp) ({ typeof(fp) _fp = (fp); int is_valid = guard_is_valid((const void *)(_fp)); if(!is_valid) guard_violation("invalid indirect call", (const void *)(_fp), __FILE__, __LINE__); (_fp); })
 
 /* TODO: first statement of every function.                            */
 #define GUARD_ENTER()         ((void)0)

@@ -19,6 +19,20 @@ for t in api_demo; do
   else no "$t (benign)" "exited $?"; fi
 done
 
+for t in fptr_midfunc; do
+  echo "-- Running test $t --"
+  "$B/$t"; out=$?
+  # Is supposed to crash, test fails if it doesn't crash
+  if [ "$out" -ne 0 ]; then ok "$t (benign)"
+  else no "$t (benign)" "exited $?"; fi
+done
+
+for t in fork_icall; do
+  echo "-- Running test $t --"
+  if out=$("$B/$t" 2>/dev/null); then ok "$t (benign)"
+  else no "$t (benign)" "exited $?"; fi
+done
+
 # --- attacks ---
 #for t in fptr_overwrite ret_overwrite; do
 for t in fptr_overwrite; do
