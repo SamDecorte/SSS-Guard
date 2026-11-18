@@ -10,6 +10,8 @@
 #include <stdlib.h>
 
 #include <sys/mman.h>
+#include <unistd.h>
+
 
 extern char __executable_start;
 extern char _etext;
@@ -18,6 +20,14 @@ static const unsigned int SLOT_SIZE_BYTES = 16;
 static char *bitmap = NULL;
 
 static unsigned int is_sealed = 0;
+
+// Variables for 1.3
+#define SHADOW_STACK_ENTRIES 65536 // Room for 512KB
+
+static void **shadow_stack_start = NULL;
+static void **shadow_stack_end = NULL;
+static void **shadow_stack_top = NULL;
+
 
 __attribute__((constructor)) static void guard_init(void)
 {
@@ -104,11 +114,43 @@ _Noreturn void guard_violation(const char *what, const void *addr,
     abort();
 }
 
+static void shadow_stack_init(void)
+{
+    size_t page_size = sysconf(_SC_PAGESIZE); // Usually 4 KB
+    size_t stack_size = SHADOW_STACK_ENTRIES * sizeof(void *);
+    size_t total_size = page_size + stack_size + page_size;
+
+    char *memory = mmap(NULL, total_size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); // Reserve one extra page before and after it + everything starts with no access
+    if (memory == MAP_FAILED) {
+        guard_abort("failed to allocate the shadow stack");
+    }
+
+    char *usable_part = memory + page_size;
+    int result = mprotect(usable_part, stack_size, PROT_READ | PROT_WRITE); // Only make the middle readable and writable
+    if (result != 0) {
+        guard_abort("failed to mprotect the shadow stack");
+    }
+    // Now there are 2 guard pages in place (before and after) that causes a crash if anything runs past the ends
+
+    shadow_stack_start = (void **)usable_part;
+    shadow_stack_end = shadow_stack_start + SHADOW_STACK_ENTRIES;
+    shadow_stack_top = shadow_stack_start;
+}
+
 void guard_ss_push(void *ret)
 {
-    // TODO: push onto an mmap'ed shadow stack which is surrounded by PROT_NONE guard pages.
-    (void)ret;
+    if (shadow_stack_start == NULL) {
+        shadow_stack_init();
+    }
+
+    if (shadow_stack_top == shadow_stack_end) {
+        guard_abort("shadow stack overflow");
+    }
+
+    *shadow_stack_top = ret;
+    shadow_stack_top++;
 }
+
 
 void guard_ss_check_pop(void *ret, const char *file, int line)
 {
