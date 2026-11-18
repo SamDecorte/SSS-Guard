@@ -33,7 +33,7 @@ done
 
 # --- attacks ---
 #for t in fptr_overwrite ret_overwrite; do
-for t in fptr_overwrite; do
+for t in fptr_overwrite ret_overwrite; do
   echo "-- Running test $t --"
   #"$B/$t.plain" >/dev/null 2>&1; p=$?
   #"$B/$t.guard" >/dev/null 2>&1; g=$?
