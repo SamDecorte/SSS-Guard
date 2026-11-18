@@ -55,3 +55,5 @@ dkms.conf
 
 # debug information files
 *.dwo
+# Course assignment text (not to be pushed)
+assignment.txt
