@@ -7,13 +7,7 @@ ok(){ echo "PASS $1"; pass=$((pass+1)); }
 no(){ echo "FAIL $1 : $2"; fail=$((fail+1)); }
 
 # --- benign ---
-for t in callbacks; do
-  echo "-- Running test $t --"
-  if out=$("$B/$t" 2>/dev/null); then ok "$t (benign)"
-  else no "$t (benign)" "exited $?"; fi
-done
-
-for t in api_demo; do
+for t in "callbacks" "api_demo" "fork_icall"; do
   echo "-- Running test $t --"
   if out=$("$B/$t" 2>/dev/null); then ok "$t (benign)"
   else no "$t (benign)" "exited $?"; fi
@@ -24,12 +18,6 @@ for t in fptr_midfunc; do
   "$B/$t"; out=$?
   # Is supposed to crash, test fails if it doesn't crash
   if [ "$out" -ne 0 ]; then ok "$t (benign)"
-  else no "$t (benign)" "exited $?"; fi
-done
-
-for t in fork_icall; do
-  echo "-- Running test $t --"
-  if out=$("$B/$t" 2>/dev/null); then ok "$t (benign)"
   else no "$t (benign)" "exited $?"; fi
 done
 
