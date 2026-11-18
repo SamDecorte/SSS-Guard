@@ -21,6 +21,16 @@ for t in fptr_midfunc; do
   else no "$t (benign)" "exited $?"; fi
 done
 
+for t in deep_recursion; do
+  echo "-- Running test $t --"
+  output=$("$B/$t" 2>&1); code=$?
+  echo "$output"
+  # Is supposed to stop with a clear shadow stack overflow error
+  if [ "$code" -ne 0 ] && echo "$output" | grep -q "shadow stack overflow"; then ok "$t (stopped with a clear error)"
+  else no "$t" "did not stop with a shadow stack overflow error (exit $code)"; fi
+done
+
+
 # --- attacks ---
 #for t in fptr_overwrite ret_overwrite; do
 for t in fptr_overwrite; do

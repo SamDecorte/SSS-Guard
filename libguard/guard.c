@@ -154,13 +154,13 @@ void guard_ss_push(void *ret)
 
 void guard_ss_check_pop(void *ret, const char *file, int line)
 {
-    if (shadow_stack_top == shadow_stack_start) {
+    if (shadow_stack_top == shadow_stack_start) { // Handles an empty stack
         guard_abort("shadow stack underflow");
     }
 
     shadow_stack_top--;
 
-    if (*shadow_stack_top != ret) {
+    if (*shadow_stack_top != ret) { // compare saved copy with real return address
         guard_violation("return address", ret, file, line);
     }
 }
