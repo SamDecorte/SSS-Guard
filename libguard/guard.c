@@ -102,7 +102,7 @@ int guard_is_valid(const void *addr)
 _Noreturn void guard_abort(const char *reason)
 {
     fprintf(stderr, "guard: %s\n", reason);
-    free(bitmap);
+    //free(bitmap);
     abort();
 }
 
@@ -110,7 +110,7 @@ _Noreturn void guard_violation(const char *what, const void *addr,
                                const char *file, int line)
 {
     fprintf(stderr, "guard: %s violation at %s:%d (target %p)\n", what, file, line, addr);
-    free(bitmap);
+    //free(bitmap);
     abort();
 }
 
@@ -154,8 +154,14 @@ void guard_ss_push(void *ret)
 
 void guard_ss_check_pop(void *ret, const char *file, int line)
 {
-    // TODO: compare with the top, then either pop or report a CFI violation.
-    (void) ret;
-    (void) file;
-    (void) line;
+    if (shadow_stack_top == shadow_stack_start) {
+        guard_abort("shadow stack underflow");
+    }
+
+    shadow_stack_top--;
+
+    if (*shadow_stack_top != ret) {
+        guard_violation("return address", ret, file, line);
+    }
 }
+

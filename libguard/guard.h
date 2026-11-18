@@ -72,11 +72,22 @@ void guard_ss_check_pop(void *ret, const char *file, int line);
 
 /* TODO: evaluate expr once, check the return address,
  * then return. Usage: return x;  ->  GUARD_RETURN(x);
- * NOTE: Must evaluate the expression before the shadow stack check.   */
-#define GUARD_RETURN(expr) return (expr)
+ * NOTE: Must evaluate the expression before the shadow stack check. (done)*/
+#define GUARD_RETURN(expr) \
+    do { \
+        typeof(expr) guard_saved_value = (expr); \
+        guard_ss_check_pop(__builtin_return_address(0), __FILE__, __LINE__); \
+        return guard_saved_value; \
+    } while (0) // just use a do-while(0) loop to make it possible to use multilining...
+// __FILE__ and __LINE__ for error messaging my compiler
+// return only happens if the check passes
 
-/* TODO: same for void functions.                                      */
-#define GUARD_RETURN_VOID() return
+/* TODO: same for void functions. (done)*/
+#define GUARD_RETURN_VOID() \
+    do { \
+        guard_ss_check_pop(__builtin_return_address(0), __FILE__, __LINE__); \
+        return; \
+    } while (0) // also just do-while(0) for easy use
 
 #endif /* GUARD_DISABLE */
 
