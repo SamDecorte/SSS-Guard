@@ -15,14 +15,14 @@ static void vulnerable(void* attacker_target) {
     char buffer[16];
 
     // saved return adress sits just above the frame pointer
-    char* frame_pointer = (char*)__builtin_frame_adress(0);
+    char* frame_pointer = (char*)__builtin_frame_address(0);
     char* return_slot = frame_pointer + sizeof(void*);
     size_t overflow_size = (size_t)(return_slot - buffer) + sizeof(void*);
 
     // long copy that runs off the end of buffer into return slot
     char payload[64];
     memset(payload, 0, sizeof(payload));
-    memcopy(payload + (overflow_size - sizeof(void*)), &attacker_target, sizeof(void*));
+    memcpy(payload + (overflow_size - sizeof(void*)), &attacker_target, sizeof(void*));
     memcpy(buffer, payload, overflow_size);
 
     GUARD_RETURN_VOID();
