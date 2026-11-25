@@ -1,0 +1,4 @@
+build/
+.git/
+*.guard.c
+.DS_Store

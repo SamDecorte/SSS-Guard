@@ -18,9 +18,30 @@ make          # build libguard and all test binaries
 make test     # build, then run the suite
 ```
 
+The code only builds on x86-64 Linux. On macOS (including Apple Silicon) or
+Windows, use the Docker image, which is also what CI runs:
+
+```sh
+make docker-test                    # build the image, then `make clean test` inside it
+make docker-test EXTRA_CFLAGS=-Werror   # what CI runs
+make docker-shell                   # shell in the container (gcc, gdb, valgrind, guardcc deps)
+```
+
+CI (`.github/workflows/ci.yml`) runs `make docker-test EXTRA_CFLAGS=-Werror` on
+every push to `main` and on every pull request.
+
+### Adding a test
+
+Put the `.c` file in `testcases/` and add its name to exactly one list in the `Makefile`:
+
+- `BENIGN`: must exit 0 and print the same stdout as its `-DGUARD_DISABLE` build.
+- `DETECT`: the guarded build must stop with a `guard: ...` message on stderr.
+- `ATTACK`: `.plain` must hijack (exit 42), `.guard` must stop with a `guard: ...` message.
+
 ## What "pass" means
 
-- Benign tests (`callbacks`) must exit 0 and print the same output with and without Guard.
+- Benign tests must exit 0 and print the same output with and without Guard.
+- Detect tests must be stopped by Guard with a clear `guard:` error (not a random crash).
 - Attack tests are built twice. The `.plain` build (`-DGUARD_DISABLE`) must hijack: `win()` runs and the process exits 42.
   The `.guard` build must detect the hijack and terminate before `win()` runs.
 

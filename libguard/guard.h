@@ -75,7 +75,7 @@ void guard_ss_check_pop(void *ret, const char *file, int line);
  * NOTE: Must evaluate the expression before the shadow stack check. (done)*/
 #define GUARD_RETURN(expr) \
     do { \
-        typeof(expr) guard_saved_value = (expr); \
+        __auto_type guard_saved_value = (expr); /* __auto_type decays arrays ("str") to pointers */ \
         guard_ss_check_pop(__builtin_return_address(0), __FILE__, __LINE__); \
         return guard_saved_value; \
     } while (0) // just use a do-while(0) loop to make it possible to use multilining...
