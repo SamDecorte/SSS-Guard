@@ -57,3 +57,6 @@ dkms.conf
 *.dwo
 # Course assignment text (not to be pushed)
 assignment.txt
+
+# macOS
+.DS_Store

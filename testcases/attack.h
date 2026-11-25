@@ -17,7 +17,7 @@
 /* Exit status of win(): tells the test script the hijack succeeded. */
 #define HIJACKED_STATUS 42
 
-static void *attacker_lookup(const char *symbol)
+static __attribute__((unused)) void *attacker_lookup(const char *symbol)
 {
     void *addr = dlsym(RTLD_DEFAULT, symbol);
     if (addr == NULL) {

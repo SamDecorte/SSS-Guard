@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest   # x86-64, same platform as the Docker image
+    steps:
+      - uses: actions/checkout@v4
+
+      # Same image everyone uses locally via `make docker-test`.
+      - name: Build Docker image
+        run: make docker-image
+
+      # -Werror: the assignment requires a warning-free build.
+      - name: make test (-Werror)
+        run: make docker-test EXTRA_CFLAGS=-Werror
